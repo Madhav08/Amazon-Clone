@@ -7,14 +7,30 @@ import Checkout from "./components/Checkout";
 import Login from "./components/Login";
 import Register from "./components/Register";
 import { auth } from "./firebase";
+import { useStateValue } from "./StateProvider";
 
 function App() {
 
-  // useEffect(() => {
-  //   return () => {
-  //     auth.onAuthStateChanged()
-  //   }
-  // }, [])
+  const [state, dispatch]=useStateValue();
+
+  useEffect(() => {
+    
+    auth.onAuthStateChanged(authUser => {
+      console.log(authUser)
+      if(authUser) {
+        dispatch({
+          type: "SET_USER",
+          user: authUser
+        })
+      } else {
+        dispatch({
+          type: "SET_USER",
+          user: null
+        })
+      }
+    })
+
+  }, [])
 
   return (
     <Router>

@@ -1,13 +1,29 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "./Header.css";
 import SearchIcon from "@material-ui/icons/Search";
 import ShoppingCartIcon from "@material-ui/icons/ShoppingCart";
 import { Link } from "react-router-dom";
 import { useStateValue } from "../StateProvider";
+import { auth, db } from "../firebase";
 
 function Header() {
 
-  const [{basket}, dispatch] = useStateValue();
+  const [{basket, user}, dispatch] = useStateValue();
+  const [username, setUsername] = useState(null)
+  //console.log("USER>>>>>>>>>",user?.uid)
+  useEffect(() => {
+    db.collection('users').doc(`${user?.uid}`).get().then((docs)=>{
+      setUsername(docs.data()?.UserName)
+      //console.log("USER>>>>>>>>>",docs.data()?.UserName)
+    })
+  }, [user])
+  
+  
+  const handleClick = () => {
+    if(user) {
+      auth.signOut()
+    }
+  }
 
   return (
     <div className="header">
@@ -25,10 +41,10 @@ function Header() {
 
       
         <div className="header__nav">
-        <Link to="/login">
-          <div className="header__options">
-            <span className="header__optionLineOne">Hello Guest</span>
-            <span className="header__optionLineTwo">Sign in</span>
+        <Link to={!user && '/login'}>
+          <div className="header__options" onClick={handleClick}>
+            <span className="header__optionLineOne">Hello {username ? username : "Guest"}</span>
+            <span className="header__optionLineTwo">{user ? "Sign Out":"Sign In"}</span>
           </div>
           </Link>
       
